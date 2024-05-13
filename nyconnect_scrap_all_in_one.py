@@ -41,32 +41,32 @@ mainLinks = [
 for eachLink in mainLinks:
     r1 = requests.get(eachLink)
     soup = BeautifulSoup(r1.content, 'html.parser')
-    Category = re.findall('(?<=<li class="last">)[^<>]+?(?=<\/li>)', str(r1.content))[0]
+    Category = re.findall(r'(?<=<li class="last">)[^<>]+?(?=<\/li>)', str(r1.content))[0]
 
-    html = soup.find_all('ul', id=re.compile('ctl00_MainContent_BrowseCategory\w+'))
+    html = soup.find_all('ul', id=re.compile(r'ctl00_MainContent_BrowseCategory\w+'))
     list_string = str(html)
 
     soup = BeautifulSoup(list_string, 'html.parser')
     a_link = soup.find_all('a', {
-        'id': re.compile('ctl00_MainContent_BrowseCategory\w+?_2'),
-        'href': re.compile('(?<=\/browse-search\/category\/).+')
+        'id': re.compile(r'ctl00_MainContent_BrowseCategory\w+?_2'),
+        'href': re.compile(r'(?<=\/browse-search\/category\/).+')
     })
 
-    titles = soup.find_all('h3', {"id": re.compile('ctl00_MainContent_BrowseCategoryH3\d+')})
+    titles = soup.find_all('h3', {"id": re.compile(r'ctl00_MainContent_BrowseCategoryH3\d+')})
 
     index = 0
     for link in a_link:
         key = str(re.findall('(?<=<a href="/browse-search/category/).+(?=" id)', str(link))[0])
         index_item = str(titles[index])
         r1 = requests.get(eachLink)
-        SubCategory = re.sub('(?<=&)amp;', '', str(re.findall('(?<=">).+(?=<\/h3>)', index_item)[0]))
+        SubCategory = re.sub('(?<=&)amp;', '', str(re.findall(r'(?<=">).+(?=<\/h3>)', index_item)[0]))
         index = index + 1
         session.get(f'http://www.nyconnects.ny.gov/browse-search/category/{key}')
         cookieDictStr = str(session.cookies.get_dict())
 
         replace_comma = re.sub(',', ';', cookieDictStr)
-        remove_curls = re.sub('[\{\}]', '', replace_comma)
-        replace_colons = re.sub(':\s*', '=', remove_curls)
+        remove_curls = re.sub(r'[\{\}]', '', replace_comma)
+        replace_colons = re.sub(r':\s*', '=', remove_curls)
         remove_inverted_comma = re.sub('\'', '', replace_colons)
         refined_cookie = remove_inverted_comma
 
@@ -105,12 +105,12 @@ for eachLink in mainLinks:
                 ProviderName = re.sub('(?<=&)amp;', '', re.findall(
                     '(?<=<div data-itemid="ResultGroupTitle" data-itemvalue=").+?(?=">)', strIed)[0])
 
-            if re.search('(?<=<a href="\/services\/).+?(?=">)', strIed):
-                ProgramName = re.search('(?<=">).+?(?=<\/a>)', re.sub('(?<=&)amp;', '', re.sub(
-                    '\n|\s{2,}', '', re.findall('(?<=<a href="\/services\/).+?(?=<\/h2>)', strIed, re.DOTALL)[0]))).group(0)
+            if re.search(r'(?<=<a href="\/services\/).+?(?=">)', strIed):
+                ProgramName = re.search(r'(?<=">).+?(?=<\/a>)', re.sub('(?<=&)amp;', '', re.sub(
+                    r'\n|\s{2,}', '', re.findall(r'(?<=<a href="\/services\/).+?(?=<\/h2>)', strIed, re.DOTALL)[0]))).group(0)
 
             if re.search('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed):
-                ProgramDescription = re.sub('&quot;', '"', re.sub('&lt;br&gt;', ' \n ', re.sub('(?<=&)amp;', '', 
+                ProgramDescription = re.sub('&quot;', '"', re.sub(r'&lt;br&gt;', r' \n ', re.sub('(?<=&)amp;', '', 
                     re.findall('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed)[0])))
 
             if re.search('(?<=<div class="result-telephone" data-itemid="ServiceTelephone" data-itemvalue=").+?(?=">)', strIed):
@@ -121,8 +121,8 @@ for eachLink in mainLinks:
                 AddressLine1 = re.sub('(?<=&)amp;', '', re.findall(
                     '(?<=<div data-itemid="ProviderAddress" data-itemvalue=").+?(?=">)', strIed)[0])
 
-                if re.search('\d+-?$', AddressLine1):
-                    PostalCode = re.findall('[0-9-]+\s*$', AddressLine1)[0]
+                if re.search(r'\d+-?$', AddressLine1):
+                    PostalCode = re.findall(r'[0-9-]+\s*$', AddressLine1)[0]
 
             mycursor = mydb.cursor()
             sql = f"INSERT INTO {TABLE_NAME}" + " " + \
