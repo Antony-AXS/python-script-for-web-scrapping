@@ -9,7 +9,7 @@ start = time.time()
 mydb = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="MyPassword123#@!",
+    password="",  # please provide your mysql user password
     database="maia_scrape",
     auth_plugin="mysql_native_password"
 )
@@ -41,9 +41,11 @@ mainLinks = [
 for eachLink in mainLinks:
     r1 = requests.get(eachLink)
     soup = BeautifulSoup(r1.content, 'html.parser')
-    Category = re.findall(r'(?<=<li class="last">)[^<>]+?(?=<\/li>)', str(r1.content))[0]
+    Category = re.findall(
+        r'(?<=<li class="last">)[^<>]+?(?=<\/li>)', str(r1.content))[0]
 
-    html = soup.find_all('ul', id=re.compile(r'ctl00_MainContent_BrowseCategory\w+'))
+    html = soup.find_all('ul', id=re.compile(
+        r'ctl00_MainContent_BrowseCategory\w+'))
     list_string = str(html)
 
     soup = BeautifulSoup(list_string, 'html.parser')
@@ -52,16 +54,20 @@ for eachLink in mainLinks:
         'href': re.compile(r'(?<=\/browse-search\/category\/).+')
     })
 
-    titles = soup.find_all('h3', {"id": re.compile(r'ctl00_MainContent_BrowseCategoryH3\d+')})
+    titles = soup.find_all('h3', {"id": re.compile(
+        r'ctl00_MainContent_BrowseCategoryH3\d+')})
 
     index = 0
     for link in a_link:
-        key = str(re.findall('(?<=<a href="/browse-search/category/).+(?=" id)', str(link))[0])
+        key = str(re.findall(
+            '(?<=<a href="/browse-search/category/).+(?=" id)', str(link))[0])
         index_item = str(titles[index])
         r1 = requests.get(eachLink)
-        SubCategory = re.sub('(?<=&)amp;', '', str(re.findall(r'(?<=">).+(?=<\/h3>)', index_item)[0]))
+        SubCategory = re.sub('(?<=&)amp;', '', str(
+            re.findall(r'(?<=">).+(?=<\/h3>)', index_item)[0]))
         index = index + 1
-        session.get(f'http://www.nyconnects.ny.gov/browse-search/category/{key}')
+        session.get(
+            f'http://www.nyconnects.ny.gov/browse-search/category/{key}')
         cookieDictStr = str(session.cookies.get_dict())
 
         replace_comma = re.sub(',', ';', cookieDictStr)
@@ -83,7 +89,8 @@ for eachLink in mainLinks:
             "Upgrade-Insecure-Requests": "1"
         }
 
-        response = requests.get("http://www.nyconnects.ny.gov/results?page=1&pageSize=5000&sortby=ProgramNameAsc&focus=CWSortOptionDropDownList", headers=refined_headers)
+        response = requests.get(
+            "http://www.nyconnects.ny.gov/results?page=1&pageSize=5000&sortby=ProgramNameAsc&focus=CWSortOptionDropDownList", headers=refined_headers)
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -110,8 +117,8 @@ for eachLink in mainLinks:
                     r'\n|\s{2,}', '', re.findall(r'(?<=<a href="\/services\/).+?(?=<\/h2>)', strIed, re.DOTALL)[0]))).group(0)
 
             if re.search('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed):
-                ProgramDescription = re.sub('&quot;', '"', re.sub(r'&lt;br&gt;', r' \n ', re.sub('(?<=&)amp;', '', 
-                    re.findall('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed)[0])))
+                ProgramDescription = re.sub('&quot;', '"', re.sub(r'&lt;br&gt;', r' \n ', re.sub('(?<=&)amp;', '',
+                                                                                                 re.findall('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed)[0])))
 
             if re.search('(?<=<div class="result-telephone" data-itemid="ServiceTelephone" data-itemvalue=").+?(?=">)', strIed):
                 ProviderTelephone = re.findall(
@@ -128,7 +135,8 @@ for eachLink in mainLinks:
             sql = f"INSERT INTO {TABLE_NAME}" + " " + \
                 "(Category, SubCategory, ProviderName, ProgramName, ProgramDescription, ProviderTelephone, AddressLine1, PostalCode)" + \
                 " " + "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            val = (Category, SubCategory, ProviderName, ProgramName, ProgramDescription, ProviderTelephone, AddressLine1, PostalCode)
+            val = (Category, SubCategory, ProviderName, ProgramName,
+                   ProgramDescription, ProviderTelephone, AddressLine1, PostalCode)
             mycursor.execute(sql, val)
             mydb.commit()
             row_count += 1
@@ -136,7 +144,8 @@ for eachLink in mainLinks:
 
         row_count = 0
 
-        print(f"\nINSERTED ALL ENTRIES IN '{SubCategory}' TO '{TABLE_NAME}' TABLE !!!\n")
+        print(
+            f"\nINSERTED ALL ENTRIES IN '{SubCategory}' TO '{TABLE_NAME}' TABLE !!!\n")
 
 print("SCRAPPING COMPLETED SUCCESSFULLY.")
 

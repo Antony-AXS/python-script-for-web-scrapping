@@ -9,7 +9,7 @@ start = time.time()
 mydb = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="MyPassword123#@!",
+    password="",  # please provide your mysql user password
     database="maia_scrape",
     auth_plugin='mysql_native_password'
 )
@@ -28,7 +28,8 @@ mainLinks = [
 for eachLink in mainLinks:
     r1 = requests.get(eachLink)
     soup = BeautifulSoup(r1.content, 'html.parser')
-    html = soup.find_all('ul', id=re.compile('ctl00_MainContent_BrowseCategory\w+'))
+    html = soup.find_all('ul', id=re.compile(
+        'ctl00_MainContent_BrowseCategory\w+'))
     list_string = str(html)
 
     soup = BeautifulSoup(list_string, 'html.parser')
@@ -38,8 +39,10 @@ for eachLink in mainLinks:
     })
 
     for link in a_link:
-        key = str(re.findall('(?<=<a href="/browse-search/category/).+(?=" id)', str(link))[0])
-        session.get(f'http://www.nyconnects.ny.gov/browse-search/category/{key}')
+        key = str(re.findall(
+            '(?<=<a href="/browse-search/category/).+(?=" id)', str(link))[0])
+        session.get(
+            f'http://www.nyconnects.ny.gov/browse-search/category/{key}')
         cookieDictStr = str(session.cookies.get_dict())
 
         replace_comma = re.sub(',', ';', cookieDictStr)
@@ -74,7 +77,8 @@ for eachLink in mainLinks:
             PostalCode VARCHAR(20));
             """)
 
-        response = requests.get("http://www.nyconnects.ny.gov/results?page=1&pageSize=5000&sortby=ProgramNameAsc&focus=CWSortOptionDropDownList", headers=refined_headers)
+        response = requests.get(
+            "http://www.nyconnects.ny.gov/results?page=1&pageSize=5000&sortby=ProgramNameAsc&focus=CWSortOptionDropDownList", headers=refined_headers)
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -116,7 +120,8 @@ for eachLink in mainLinks:
             mycursor = mydb.cursor()
             sql = f"INSERT INTO {TABLE_NAME}" + " " + \
                 "(ProviderName, ProgramName, ProgramDescription, ProviderTelephone, AddressLine1, PostalCode) VALUES (%s, %s, %s, %s, %s, %s)"
-            val = (ProviderName, ProgramName, ProgramDescription, ProviderTelephone, AddressLine1, PostalCode)
+            val = (ProviderName, ProgramName, ProgramDescription,
+                   ProviderTelephone, AddressLine1, PostalCode)
             mycursor.execute(sql, val)
             mydb.commit()
 
