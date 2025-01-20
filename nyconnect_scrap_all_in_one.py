@@ -90,7 +90,9 @@ for eachLink in mainLinks:
         }
 
         response = requests.get(
-            "http://www.nyconnects.ny.gov/results?page=1&pageSize=5000&sortby=ProgramNameAsc&focus=CWSortOptionDropDownList", headers=refined_headers)
+            "http://www.nyconnects.ny.gov/results?page=1&pageSize=5000&sortby=ProgramNameAsc&focus=CWSortOptionDropDownList",
+            headers=refined_headers
+        )
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -117,8 +119,8 @@ for eachLink in mainLinks:
                     r'\n|\s{2,}', '', re.findall(r'(?<=<a href="\/services\/).+?(?=<\/h2>)', strIed, re.DOTALL)[0]))).group(0)
 
             if re.search('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed):
-                ProgramDescription = re.sub('&quot;', '"', re.sub(r'&lt;br&gt;', r' \n ', re.sub('(?<=&)amp;', '',
-                                                                                                 re.findall('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed)[0])))
+                ProgramDescription = re.sub('&quot;', '"', re.sub(r'&lt;br&gt;', r' \n ', re.sub(
+                    '(?<=&)amp;', '', re.findall('(?<=<div data-itemid="ServiceDescription" data-itemvalue=").+?(?=">)', strIed)[0])))
 
             if re.search('(?<=<div class="result-telephone" data-itemid="ServiceTelephone" data-itemvalue=").+?(?=">)', strIed):
                 ProviderTelephone = re.findall(
