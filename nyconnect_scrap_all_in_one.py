@@ -146,8 +146,7 @@ for eachLink in mainLinks:
 
         row_count = 0
 
-        print(
-            f"\nINSERTED ALL ENTRIES IN '{SubCategory}' TO '{TABLE_NAME}' TABLE !!!\n")
+        print(f"\nINSERTED ALL ENTRIES IN '{SubCategory}' TO '{TABLE_NAME}' TABLE !!!\n")
 
 print("SCRAPPING COMPLETED SUCCESSFULLY.")
 
